@@ -278,3 +278,43 @@ class MongoDBPipeline():
                 spider=spider)
 
         return item
+
+
+import copy
+
+
+class MongoDBPipelines(object):
+    """
+    .. code-block:: python
+
+        MONGODB_URIS = [
+            'mongodb://username:password@host1:27017',
+            'mongodb://username:password@host2:27017',
+            'mongodb://username:password@host2:27017'
+            'mongodb://username:password@host3:27017'
+        ]
+    """
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def __init__(self, crawler):
+        self.pipelines = []
+        orig_settings = crawler.settings
+
+        for uri in orig_settings['MONGODB_URIS']:
+            copy_settings = copy.deepcopy(orig_settings)
+            copy_settings.overrides['MONGODB_URI'] = uri
+
+            crawler.settings = copy_settings
+            self.pipelines.append(MongoDBPipeline(crawler))
+
+        crawler.settings = orig_settings
+
+    def process_item(self, item, spider):
+        """ from scrapy """
+        for pipeline in self.pipelines:
+            pipeline.process_item(item, spider)
+
+        return item
