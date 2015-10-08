@@ -305,6 +305,7 @@ class MongoDBPipelines(object):
 
         for uri in orig_settings['MONGODB_URIS']:
             copy_settings = copy.deepcopy(orig_settings)
+            copy_settings.frozen = False
             copy_settings.overrides['MONGODB_URI'] = uri
 
             crawler.settings = copy_settings
